@@ -13,6 +13,22 @@ import { join } from "node:path";
 const PITCH =
   "A showerhead that pauses your shower and plays hold music whenever someone flushes the toilet, so you never get scalded mid-rinse.";
 
+// The gate only accepts UTF-8 text of 1 to 220 characters, not only white
+// space, as exactly one sentence. Refuse to write anything that breaks it
+// rather than submitting an invalid entry.
+const trimmed = PITCH.trim();
+if (
+  trimmed.length < 1 ||
+  trimmed.length > 220 ||
+  trimmed !== PITCH ||
+  (trimmed.match(/\./g) ?? []).length !== 1 ||
+  !trimmed.endsWith(".")
+) {
+  throw new Error(
+    `pitch fails the gate: ${trimmed.length} chars, must be 1-220 chars, one sentence`,
+  );
+}
+
 const outDir = process.env.MAKEFUN_OUTPUT_DIR ?? "out";
 mkdirSync(outDir, { recursive: true });
 writeFileSync(join(outDir, "entry.txt"), PITCH, "utf8");
